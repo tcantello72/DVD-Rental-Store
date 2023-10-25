@@ -11,7 +11,6 @@ const { seedDVD } = require("./seedData");
 const syncSeed = async () => {
     await db.sync({force: true});
     seedDVD && seedDVD.map(dvd => Dvd.create(dvd));
-    //console.log(seedSnippet)
 }
 
 syncSeed();
