@@ -4,11 +4,14 @@ created on 10/4/23
 updated on 10/4/23
 */
 
+require("dotenv").config();
+
 const app = require("./src/app");
 const { db } = require("./db/connection")
-const port = 3000;
 
-app.listen(port, () => {
+const {PORT} = process.env;
+
+app.listen(PORT, () => {
     db.sync();
-    console.log(`Listening at http://localhost:${port}/`)
+    console.log(`Listening at http://localhost:${PORT}/`)
 })
