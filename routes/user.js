@@ -1,15 +1,11 @@
 /*
 created by Toby Cantello
 created on 10/25/23
-updated on 10/25/23
+updated on 11/7/23
 */
-
-
 
 const express = require ('express');
 const {check, validationResult} = require("express-validator");
-
-
 const bodyParser = require('body-parser');
 const bcrypt = require("bcryptjs");
 const db = require('../db/connection');
@@ -17,17 +13,31 @@ const router = express.Router();
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: false }));
 const authUser = require('../midWare/authLogin.js');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 const {ACCESS_TOKEN_SECRET} = process.env;
-
 const USER = require('../models/USER.js');
+global.loggedIn = 0;
 
 // GET Route to get all users
 router.get("/", authUser, async (req, res, next) => {
     try 
         {
-            const users = await USER.findAll();
-            res.send(users);
+            if (loggedIn == 1)
+                {
+                    let userList = [];
+                    const users = await USER.findAll();
+                    for (i=0; i<users.length; i++)
+                        {
+                            const {id, username, createdAt, updatedAt} = users[i].dataValues;
+                            console.log("you are in the IF")
+                            userList.push({id, username, createdAt, updatedAt});
+                        }
+                    res.send(userList);
+                }
+            else
+                {
+                    res.send({message: "Please login to see this information"})
+                }
         }
     catch (error)
         {
@@ -36,14 +46,21 @@ router.get("/", authUser, async (req, res, next) => {
 });
 
 // GET route to get the user in the database with the matching ID
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", authUser, async (req, res, next) => {
     try
         {
-            const user = await USER.findOne({where: {id: req.params.id}});
-            res.send(user);
+            if (loggedIn == 1)
+                {
+                    const user = await USER.findOne({where: {id: req.params.id}});
+                    const {id, username, createdAt, updatedAt} = user
+                    res.send({id, username, createdAt, updatedAt});
+                }
+            else
+                {
+                    res.send({message: "Please login to see this information"})
+                }
         }
     catch (error)
-
         {
             next((error));
         }
@@ -62,6 +79,7 @@ router.post('/login', authUser, async (req, res) => {
                     const {id, username} = user;
                     const token = jwt.sign({id: id, username: username}, ACCESS_TOKEN_SECRET);
                     res.send({message: "Successful Login", token});
+                    return global.loggedIn = 1;
                 }
                 else 
                 {
