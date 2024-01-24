@@ -29,7 +29,6 @@ router.get("/", authUser, async (req, res, next) => {
                     for (i=0; i<users.length; i++)
                         {
                             const {id, username, createdAt, updatedAt} = users[i].dataValues;
-                            console.log("you are in the IF")
                             userList.push({id, username, createdAt, updatedAt});
                         }
                     res.send(userList);
@@ -66,7 +65,7 @@ router.get("/:id", authUser, async (req, res, next) => {
         }
 })
 
-// POST route to create a dvd in the database
+// POST route to login a user in 
 router.post('/login', authUser, async (req, res) => {
     try 
         {
@@ -93,7 +92,7 @@ router.post('/login', authUser, async (req, res) => {
         }
 });
 
-// POST route to create a dvd in the database
+// POST route to create a new user in the database
 router.post('/register', async (req, res) => {
     try 
         {
